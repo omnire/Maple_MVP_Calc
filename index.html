@@ -26,6 +26,7 @@
         <div class="toolbar">
             <input type="month" id="monthFilter" class="util-input" onchange="changeFilter()">
             <button onclick="exportData()" class="util-btn">💾 백업</button>
+            <button onclick="resetAllData()" class="util-btn" style="color: #f04452; border-color: #f04452;">🧹 전체 초기화</button>
             <button onclick="document.getElementById('importFile').click()" class="util-btn">📂 복구</button>
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
         </div>
@@ -41,7 +42,7 @@
         <div class="dashboard-grid">
             <div class="card stat-card">
                 <div class="stat-title">CASH STATUS (실제 지출 기준)</div>
-                <div class="stat-row"><span>이번달 충전</span> <input type="text" id="chargeAmount" placeholder="금액 입력" onfocus="removeComma(this)" onchange="saveCharge()" onkeyup="if(event.key==='Enter') this.blur();"></div>
+                <div class="stat-row"><span>이번달 충전</span> <input type="text" id="chargeAmount" placeholder="금액 입력" oninput="applyRealtimeComma(this); saveCharge()"></div>
                 <div class="stat-row"><span>총 사용(지출)</span> <span id="totalUsedCash">0</span></div>
                 <div class="stat-row"><span>남은 현금</span> <strong id="remainCash" class="accent-orange">0</strong></div>
                 <div class="stat-row"><span>손해 금액</span> <strong id="totalLossAmount">0원</strong></div>
@@ -51,8 +52,8 @@
             <div class="card stat-card">
                 <div class="stat-title">EXCHANGE STATUS (메소 환전)</div>
                 <div class="stat-row"><span>목표 메소</span> <span id="targetMeso">0</span></div>
-                <div class="stat-row"><span>환전 완료</span> <span id="totalExchangedMeso">0</span></div>
-                <div class="stat-row"><span>남음 목표</span> <strong id="remainMeso" class="accent-navy">0</strong></div>
+                <div class="stat-row"><span>판매 완료</span> <span id="totalExchangedMeso">0</span></div>
+                <div class="stat-row"><span>남은 메소</span> <strong id="remainMeso" class="accent-navy">0</strong></div>
                 <div class="progress-container"><div class="progress-bar" id="mesoProgressBar"></div></div>
             </div>
         </div>
@@ -66,7 +67,7 @@
                 </div>
                 <input type="text" id="simCategory" placeholder="품목명">
                 <input type="number" id="simAmount" placeholder="개수" class="sm-input">
-                <input type="text" id="simCash" placeholder="캐시가" onfocus="removeComma(this)" onblur="formatComma(this)">
+                <input type="text" id="simCash" placeholder="캐시가" oninput="applyRealtimeComma(this)">
                 <button onclick="addSimItem()" class="action-btn">시뮬레이션 추가</button>
             </div>
             <div id="sim-container"></div>
@@ -82,7 +83,7 @@
                 <input type="date" id="invDate">
                 <input type="text" id="invCategory" placeholder="구매한 품목명">
                 <input type="number" id="invAmount" placeholder="개수" class="sm-input">
-                <input type="text" id="invCash" placeholder="지출 캐시" onfocus="removeComma(this)" onblur="formatComma(this)">
+                <input type="text" id="invCash" placeholder="지출 캐시" oninput="applyRealtimeComma(this)">
                 <button onclick="addInvItem()" class="action-btn" style="background: #27ae60 !important;">🛒 실제 구매 등록</button>
             </div>
             
@@ -104,8 +105,13 @@
                 </table>
             </div>
         </div>
-    </div>
+ </div>
 
-    <script src="script.js"></script>
+        <footer style="text-align: center; margin-top: 40px; padding: 20px; color: var(--text-sub); font-size: 12px; border-top: 1px solid var(--border);">
+            <p>© 2026 <strong>옴니</strong>. All rights reserved.</p>
+            <p>본 사이트는 메이플스토리 MVP 등급 달성을 돕기 위한 개인 프로젝트입니다.</p>
+            </footer>
+
+    </div> <script src="script.js"></script>
 </body>
 </html>

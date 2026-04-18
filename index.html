@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAPLE OMNI MVP V18 FINAL</title>
+    <link rel="stylesheet" href="Style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container">
+        <header class="main-header card">
+            <div class="logo-area"><span class="maple-icon">🍁</span><h1>OMNI MVP</h1></div>
+            <div class="header-controls">
+                <select id="serverSelect" onchange="saveServer()">
+                    <option value="엘리시움">엘리시움</option>
+                    <option value="루나">루나</option>
+                    <option value="스카니아">스카니아</option>
+                    <option value="챌린저스">챌린저스</option>
+                </select>
+                <div class="price-box"><span>1억당</span><input type="number" id="marketPrice" value="1600" oninput="calculateAll()"></div>
+            </div>
+        </header>
+
+        <div class="toolbar">
+            <input type="month" id="monthFilter" class="util-input" onchange="changeFilter()">
+            <button onclick="exportData()" class="util-btn">💾 백업</button>
+            <button onclick="document.getElementById('importFile').click()" class="util-btn">📂 복구</button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+        </div>
+
+        <div class="tab-container">
+            <div class="pill-tabs">
+                <button class="tab-btn active" onclick="switchTab('sim-tab', event)">📊 시뮬레이션</button>
+                <button class="tab-btn" onclick="switchTab('inv-tab', event)">🛒 구매/재고 관리</button>
+                <button class="tab-btn" onclick="switchTab('record-tab', event)">📝 판매 기록장</button>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card stat-card">
+                <div class="stat-title">CASH STATUS (실제 지출 기준)</div>
+                <div class="stat-row"><span>이번달 충전</span> <input type="text" id="chargeAmount" placeholder="금액 입력" onfocus="removeComma(this)" onchange="saveCharge()" onkeyup="if(event.key==='Enter') this.blur();"></div>
+                <div class="stat-row"><span>총 사용(지출)</span> <span id="totalUsedCash">0</span></div>
+                <div class="stat-row"><span>남은 현금</span> <strong id="remainCash" class="accent-orange">0</strong></div>
+                <div class="stat-row"><span>손해 금액</span> <strong id="totalLossAmount">0원</strong></div>
+                <div class="stat-row"><span>현재 손해율</span> <span><span id="totalLossRate">0</span>%</span></div>
+            </div>
+            
+            <div class="card stat-card">
+                <div class="stat-title">EXCHANGE STATUS (메소 환전)</div>
+                <div class="stat-row"><span>목표 메소</span> <span id="targetMeso">0</span></div>
+                <div class="stat-row"><span>환전 완료</span> <span id="totalExchangedMeso">0</span></div>
+                <div class="stat-row"><span>남음 목표</span> <strong id="remainMeso" class="accent-navy">0</strong></div>
+                <div class="progress-container"><div class="progress-bar" id="mesoProgressBar"></div></div>
+            </div>
+        </div>
+
+        <div id="sim-tab" class="page-content">
+            <div class="card add-box">
+                <div class="preset-container">
+                    <select id="simPreset" class="preset-select" onchange="applyPreset('sim')"></select>
+                    <button class="preset-save-btn" onclick="saveAsPreset('sim')">⭐ 내 프리셋으로 저장</button>
+                    <button class="preset-del-btn" onclick="deletePreset('sim')">🗑️ 삭제</button>
+                </div>
+                <input type="text" id="simCategory" placeholder="품목명">
+                <input type="number" id="simAmount" placeholder="개수" class="sm-input">
+                <input type="text" id="simCash" placeholder="캐시가" onfocus="removeComma(this)" onblur="formatComma(this)">
+                <button onclick="addSimItem()" class="action-btn">시뮬레이션 추가</button>
+            </div>
+            <div id="sim-container"></div>
+        </div>
+
+        <div id="inv-tab" class="page-content" style="display: none;">
+            <div class="card add-box">
+                <div class="preset-container">
+                    <select id="invPreset" class="preset-select" onchange="applyPreset('inv')"></select>
+                    <button class="preset-save-btn" onclick="saveAsPreset('inv')">⭐ 내 프리셋으로 저장</button>
+                    <button class="preset-del-btn" onclick="deletePreset('inv')">🗑️ 삭제</button>
+                </div>
+                <input type="date" id="invDate">
+                <input type="text" id="invCategory" placeholder="구매한 품목명">
+                <input type="number" id="invAmount" placeholder="개수" class="sm-input">
+                <input type="text" id="invCash" placeholder="지출 캐시" onfocus="removeComma(this)" onblur="formatComma(this)">
+                <button onclick="addInvItem()" class="action-btn" style="background: #27ae60 !important;">🛒 실제 구매 등록</button>
+            </div>
+            
+            <div class="category-title" style="margin-top: 15px;">📦 현재 보유중인 재고 (현금 차감됨)</div>
+            <div class="card table-card">
+                <table>
+                    <thead><tr><th>구매일</th><th>품목(개수)</th><th>지출 캐시</th><th>실제 판매가(메소)</th><th>예상 손익</th><th>관리</th></tr></thead>
+                    <tbody id="inventory-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="record-tab" class="page-content" style="display: none;">
+            <div class="card table-card">
+                <div class="category-title">📝 최종 판매 완료 기록 (환전 완료)</div>
+                <table>
+                    <thead><tr><th>판매일</th><th>품목(개수)</th><th>판매 메소</th><th>지출 캐시</th><th>회수액(원)</th><th>총 손익</th><th>개당 손익</th><th>관리</th></tr></thead>
+                    <tbody id="record-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

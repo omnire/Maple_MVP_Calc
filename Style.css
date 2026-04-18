@@ -77,71 +77,33 @@ tr:hover td { background: var(--navy-light); }
 .del-btn:hover { background: #e5e8eb; color: var(--navy); }
 .sell-btn { background: #3182f6 !important; color: white !important; }
 
-/* ================= [📱 모바일 반응형 최종 최적화] ================= */
 @media (max-width: 768px) {
-    body { padding: 10px; overflow-x: hidden; } /* 가로 스크롤 방지 */
-    
+    body { padding: 10px; overflow-x: hidden; }
     .container { width: 100%; overflow-x: hidden; }
 
-    /* 상단 헤더: 로고와 설정을 깔끔하게 */
-    .main-header {
-        flex-direction: column;
-        gap: 12px;
-        padding: 15px;
-    }
-
-    /* 툴바 버튼 정렬: 2개씩 예쁘게 배치하거나 줄바꿈 허용 */
+    /* 툴바 버튼 3개를 정확히 3등분해서 한 줄에 배치 */
     .toolbar {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* 2열로 배치 */
-        gap: 8px;
-        justify-content: stretch;
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 5px;
     }
-    .toolbar .util-input { grid-column: span 2; width: 100%; } /* 날짜 선택은 길게 */
-    .toolbar .util-btn { width: 100%; margin: 0; } /* 버튼들 꽉 차게 */
-
-    /* 탭 메뉴: 글자 줄어들지 않게 스크롤 허용 */
-    .pill-tabs {
-        width: 100%;
-        display: flex;
-        justify-content: space-around;
-    }
-    .tab-btn {
-        padding: 10px 5px;
-        flex: 1;
-        font-size: 11px;
-        white-space: nowrap; /* 글자 줄바꿈 방지 */
-    }
-
-    /* 대시보드 카드 1열로 */
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-
-    /* 입력 박스: 모든 요소가 꽉 차게 */
-    .add-box {
-        flex-direction: column;
-        gap: 8px;
-    }
-    .preset-container {
-        flex-direction: column;
-    }
-    .preset-select, .preset-save-btn, .preset-del-btn, .add-box input, .action-btn {
-        width: 100% !important;
-        margin: 0 !important;
-    }
-
-    /* 표 삐져나옴 방지: 가로 스크롤 카드 내부에서만 발생하도록 */
-    .table-card {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        border: 1px solid var(--border);
-    }
+    .toolbar .util-input { grid-column: span 3; width: 100%; margin-bottom: 5px; }
     
-    table {
-        min-width: 500px; /* 표의 최소 크기 유지 */
+    /* 버튼 글자가 안 잘리게 안쪽 여백 줄이기 */
+    .toolbar .util-btn { 
+        padding: 8px 0; 
+        font-size: 11px; 
+        width: 100%;
+        text-align: center;
     }
 
-    .stat-row input { width: 80px; }
+    /* 모든 입력창 글씨 왼쪽 정렬 고정 */
+    input[type="number"], input[type="text"] {
+        text-align: left !important;
+        padding-left: 12px !important;
+    }
+
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .pill-tabs { width: 100%; display: flex; }
+    .tab-btn { flex: 1; padding: 10px 5px; font-size: 11px; white-space: nowrap; }
 }

@@ -76,3 +76,49 @@ tr:hover td { background: var(--navy-light); }
 .del-btn { background: #f2f4f6; color: var(--text-sub); border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; width: 100%;}
 .del-btn:hover { background: #e5e8eb; color: var(--navy); }
 .sell-btn { background: #3182f6 !important; color: white !important; }
+
+/* ================= [📱 모바일 반응형 레이아웃] ================= */
+@media (max-width: 768px) {
+    body { padding: 10px; }
+    
+    /* 대시보드 2열 -> 1열로 변경 */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* 상단 헤더 정렬 */
+    .main-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    /* 탭 메뉴 글자 크기 조정 */
+    .tab-btn {
+        padding: 10px 15px;
+        font-size: 12px;
+    }
+
+    /* 입력 박스들 1열로 나열 */
+    .add-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .add-box input, .add-box .sm-input, .add-box .action-btn {
+        width: 100% !important;
+        margin-bottom: 5px;
+    }
+
+    /* ⚠️ 테이블 모바일 스크롤 (표가 잘리지 않게) */
+    .table-card {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table {
+        min-width: 600px; /* 표가 너무 찌그러지지 않게 최소 너비 고정 */
+    }
+
+    /* 텍스트 크기 미세 조정 */
+    .stat-row { font-size: 13px; }
+    .stat-title { font-size: 11px; }
+}

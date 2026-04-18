@@ -32,6 +32,19 @@ window.onload = function() {
     updateStats(); 
 };
 
+// [추가] 전체 데이터 초기화 기능
+function resetAllData() {
+    const check1 = confirm("⚠️ 경고: 모든 시뮬레이션, 재고, 판매 기록이 완전히 삭제됩니다.");
+    if (check1) {
+        const check2 = confirm("정말로 삭제하시겠습니까? 삭제된 데이터는 복구할 수 없습니다. (백업 파일을 만드시는 것을 권장합니다)");
+        if (check2) {
+            localStorage.clear(); // 모든 저장 데이터 삭제
+            alert("모든 데이터가 초기화되었습니다.");
+            location.reload(); // 페이지 새로고침
+        }
+    }
+}
+
 // ================= [🌟 유틸리티 함수 (오류 방지 핵심)] =================
 // 숫자 변환 시 null이나 빈칸이 들어와도 절대 에러가 나지 않도록 철벽 방어
 function parseNum(val) {
@@ -121,12 +134,13 @@ function saveCharge() {
     const month = document.getElementById('monthFilter').value || new Date().toISOString().substring(0, 7);
     const chargeInput = document.getElementById('chargeAmount');
     
+    // 실시간으로 입력된 값을 숫자로 변환해서 저장
     let val = parseNum(chargeInput.value);
     monthlyCharges[month] = val;
     localStorage.setItem('mapleMonthlyCharges', JSON.stringify(monthlyCharges));
     localStorage.setItem('mapleChargeAmount', val);
     
-    chargeInput.value = val.toLocaleString();
+    // 대시보드의 목표 메소 등 다른 수치들도 즉시 갱신
     updateStats(); 
 }
 
@@ -221,10 +235,23 @@ function addSimItem() {
 function updateSimPrice(id, type, value) {
     const item = simData.find(d => d.id === id);
     if(item) {
-        item[type] = parseNum(value);
+        // 입력값에서 콤마를 제거하고 순수 숫자로만 데이터 저장
+        item[type] = parseNum(value); 
         localStorage.setItem('mapleSimData', JSON.stringify(simData));
+        
+        // 화면의 다른 계산값들(손익 등)만 업데이트
         const row = document.querySelector(`#sim-row-${id}`);
-        refreshSimRow(row, item); 
+        const mPrice = parseNum(document.getElementById('marketPrice').value) || 1600;
+        const unit = mPrice / 100000000;
+        
+        const returnCash = Math.floor(item.todayMeso * 0.97 * unit);
+        const profit = returnCash - item.cash;
+        const perProfit = item.amount > 0 ? Math.floor(profit / item.amount).toLocaleString() + "원" : "0원";
+        
+        // 숫자가 들어가는 칸들만 콕 집어서 업데이트 (입력창은 건드리지 않음)
+        row.querySelector('.profit-cell').innerText = profit.toLocaleString();
+        row.querySelector('.profit-cell').className = 'profit-cell ' + (profit < 0 ? 'profit-minus' : 'profit-plus');
+        row.querySelector('.per-profit-cell').innerText = perProfit;
     }
 }
 
@@ -264,15 +291,19 @@ function refreshSimRow(row, item) {
     const pClass = profit < 0 ? 'profit-minus' : 'profit-plus';
     const dClass = diff < 0 ? 'profit-minus' : 'profit-plus';
 
-    row.innerHTML = `
-        <td>${item.amount}개</td><td>${item.cash.toLocaleString()}</td>
-        <td><input type="text" class="inline-input" value="${item.yesterdayMeso ? item.yesterdayMeso.toLocaleString() : ''}" onfocus="removeComma(this)" onblur="formatComma(this); updateSimPrice(${item.id}, 'yesterdayMeso', this.value)"></td>
-        <td><input type="text" class="inline-input" value="${item.todayMeso ? item.todayMeso.toLocaleString() : ''}" onfocus="removeComma(this)" onblur="formatComma(this); updateSimPrice(${item.id}, 'todayMeso', this.value)"></td>
-        <td style="font-size:11px;" class="${dClass}">${diff ? diff.toLocaleString() : '-'}</td>
-        <td class="${pClass}">${profit ? profit.toLocaleString() : '0'}</td>
-        <td style="font-size:12px;">${perProfit}</td>
-        <td><button class="del-btn" onclick="delSimItem(${item.id})">✕ 삭제</button></td>
-    `;
+    // refreshSimRow 함수 내 HTML 부분 수정
+row.innerHTML = `
+    <td>${item.amount}개</td>
+    <td>${item.cash.toLocaleString()}</td>
+    <td><input type="text" class="inline-input" value="${item.yesterdayMeso ? item.yesterdayMeso.toLocaleString() : ''}" 
+        oninput="applyRealtimeComma(this); updateSimPrice(${item.id}, 'yesterdayMeso', this.value)"></td>
+    <td><input type="text" class="inline-input" value="${item.todayMeso ? item.todayMeso.toLocaleString() : ''}" 
+        oninput="applyRealtimeComma(this); updateSimPrice(${item.id}, 'todayMeso', this.value)"></td>
+    <td style="font-size:11px;" class="diff-cell">-</td>
+    <td class="profit-cell">0</td>
+    <td class="per-profit-cell" style="font-size:12px;">0원</td>
+    <td><button class="del-btn" onclick="delSimItem(${item.id})">✕ 삭제</button></td>
+`;
 }
 function delSimItem(id) { simData = simData.filter(d => d.id !== id); localStorage.setItem('mapleSimData', JSON.stringify(simData)); renderSimTable(); }
 
@@ -305,7 +336,7 @@ function renderInventoryTable() {
             <td>${item.buyDate}</td>
             <td><strong>${item.name}</strong> (${item.amount}개)</td>
             <td>${item.cash.toLocaleString()}</td>
-            <td><input type="text" id="inv-meso-${item.id}" class="inline-input" style="border: 1px solid #ccc; background: white;" placeholder="실제 판매된 메소" onfocus="removeComma(this)" onblur="formatComma(this)"></td>
+            <td><input type="text" id="inv-meso-${item.id}" class="inline-input" style="border: 1px solid #ccc; background: white;" placeholder="실제 판매된 메소" oninput="applyRealtimeComma(this)"></td>
             <td id="inv-profit-${item.id}" style="color:var(--text-sub); font-size:12px;">판매 완료 시 계산</td>
             <td>
                 <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
@@ -387,8 +418,8 @@ function editRecord(id) {
                 <input type="number" id="edit-amount-${id}" value="${item.amount || 1}" class="edit-input" style="width:60px" placeholder="개수"><span style="font-size:12px;">개</span>
             </div>
         </td>
-        <td><input type="text" id="edit-meso-${id}" value="${item.meso.toLocaleString()}" class="edit-input" style="text-align:right;" onfocus="removeComma(this)" onblur="formatComma(this)"></td>
-        <td><input type="text" id="edit-cash-${id}" value="${item.cash.toLocaleString()}" class="edit-input" style="text-align:right;" onfocus="removeComma(this)" onblur="formatComma(this)"></td>
+        <td><input type="text" id="edit-meso-${id}" value="${item.meso.toLocaleString()}" class="edit-input" style="text-align:right;" oninput="applyRealtimeComma(this)"></td>
+        <td><input type="text" id="edit-cash-${id}" value="${item.cash.toLocaleString()}" class="edit-input" style="text-align:right;" oninput="applyRealtimeComma(this)"></td>
         <td colspan="2" style="color:var(--text-sub); font-size:12px; line-height:1.4;">저장 시<br>자동 계산됨</td>
         <td>-</td>
         <td>
@@ -438,4 +469,22 @@ function importData(event) {
             alert("복구 완료!"); location.reload(); 
         } catch(err) { alert("잘못된 파일입니다."); }
     }; reader.readAsText(file);
+}
+
+
+// 🌟 모든 입력창 공용: 실시간 콤마 및 커서 보존 함수
+function applyRealtimeComma(obj) {
+    let cursorPosition = obj.selectionStart;
+    let oldLength = obj.value.length;
+
+    // 숫자만 추출해서 콤마 포맷팅
+    let num = parseNum(obj.value);
+    let newV = (num === 0 && obj.value === "") ? "" : num.toLocaleString();
+    
+    obj.value = newV;
+
+    // 커서 위치 계산 및 재설정
+    let newLength = obj.value.length;
+    cursorPosition = cursorPosition + (newLength - oldLength);
+    obj.setSelectionRange(cursorPosition, cursorPosition);
 }

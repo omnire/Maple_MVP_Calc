@@ -24,12 +24,11 @@
         </header>
 
         <div class="toolbar">
-            <input type="month" id="monthFilter" class="util-input" onchange="changeFilter()">
-            <button onclick="exportData()" class="util-btn">💾 백업</button>
-            <button onclick="resetAllData()" class="util-btn" style="color: #f04452; border-color: #f04452;">🧹 전체 초기화</button>
-            <button onclick="document.getElementById('importFile').click()" class="util-btn">📂 복구</button>
-            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-        </div>
+    <input type="month" id="monthFilter" class="util-input" onchange="changeFilter()">
+    <button onclick="resetAllData()" class="util-btn" style="color: #f04452; border-color: #f04452;">🧹 초기화</button>
+    <button onclick="exportData()" class="util-btn">💾 백업</button>
+    <button onclick="document.getElementById('importFile').click()" class="util-btn">📂 복구</button>
+</div>
 
         <div class="tab-container">
             <div class="pill-tabs">
@@ -66,7 +65,7 @@
                     <button class="preset-del-btn" onclick="deletePreset('sim')">🗑️ 삭제</button>
                 </div>
                 <input type="text" id="simCategory" placeholder="품목명">
-                <input type="number" id="simAmount" placeholder="개수" class="sm-input">
+                <input type="number" id="simAmount" placeholder="개수" style="text-align: left; padding-left: 12px;">
                 <input type="text" id="simCash" placeholder="캐시가" oninput="applyRealtimeComma(this)">
                 <button onclick="addSimItem()" class="action-btn">시뮬레이션 추가</button>
             </div>

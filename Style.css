@@ -77,48 +77,71 @@ tr:hover td { background: var(--navy-light); }
 .del-btn:hover { background: #e5e8eb; color: var(--navy); }
 .sell-btn { background: #3182f6 !important; color: white !important; }
 
-/* ================= [📱 모바일 반응형 레이아웃] ================= */
+/* ================= [📱 모바일 반응형 최종 최적화] ================= */
 @media (max-width: 768px) {
-    body { padding: 10px; }
+    body { padding: 10px; overflow-x: hidden; } /* 가로 스크롤 방지 */
     
-    /* 대시보드 2열 -> 1열로 변경 */
+    .container { width: 100%; overflow-x: hidden; }
+
+    /* 상단 헤더: 로고와 설정을 깔끔하게 */
+    .main-header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 15px;
+    }
+
+    /* 툴바 버튼 정렬: 2개씩 예쁘게 배치하거나 줄바꿈 허용 */
+    .toolbar {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2열로 배치 */
+        gap: 8px;
+        justify-content: stretch;
+    }
+    .toolbar .util-input { grid-column: span 2; width: 100%; } /* 날짜 선택은 길게 */
+    .toolbar .util-btn { width: 100%; margin: 0; } /* 버튼들 꽉 차게 */
+
+    /* 탭 메뉴: 글자 줄어들지 않게 스크롤 허용 */
+    .pill-tabs {
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+    }
+    .tab-btn {
+        padding: 10px 5px;
+        flex: 1;
+        font-size: 11px;
+        white-space: nowrap; /* 글자 줄바꿈 방지 */
+    }
+
+    /* 대시보드 카드 1열로 */
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
 
-    /* 상단 헤더 정렬 */
-    .main-header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-
-    /* 탭 메뉴 글자 크기 조정 */
-    .tab-btn {
-        padding: 10px 15px;
-        font-size: 12px;
-    }
-
-    /* 입력 박스들 1열로 나열 */
+    /* 입력 박스: 모든 요소가 꽉 차게 */
     .add-box {
         flex-direction: column;
-        align-items: stretch;
+        gap: 8px;
     }
-    .add-box input, .add-box .sm-input, .add-box .action-btn {
+    .preset-container {
+        flex-direction: column;
+    }
+    .preset-select, .preset-save-btn, .preset-del-btn, .add-box input, .action-btn {
         width: 100% !important;
-        margin-bottom: 5px;
+        margin: 0 !important;
     }
 
-    /* ⚠️ 테이블 모바일 스크롤 (표가 잘리지 않게) */
+    /* 표 삐져나옴 방지: 가로 스크롤 카드 내부에서만 발생하도록 */
     .table-card {
+        width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--border);
     }
+    
     table {
-        min-width: 600px; /* 표가 너무 찌그러지지 않게 최소 너비 고정 */
+        min-width: 500px; /* 표의 최소 크기 유지 */
     }
 
-    /* 텍스트 크기 미세 조정 */
-    .stat-row { font-size: 13px; }
-    .stat-title { font-size: 11px; }
+    .stat-row input { width: 80px; }
 }
